@@ -143,7 +143,7 @@ namespace WireManager
             if (config.WgHasInstall == WireManagerConfig.falseArg)
             {
                 config.WgHasInstall =
-                    wgCmdApi.InstallWireGuardToServer(server, users) ? WireManagerConfig.trueArg : WireManagerConfig.falseArg;
+                    wgCmdApi.InstallWireGuardToServer() ? WireManagerConfig.trueArg : WireManagerConfig.falseArg;
             }
         }
         #endregion

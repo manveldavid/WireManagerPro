@@ -47,11 +47,15 @@ namespace WireManager.Services
 			Process.Start(WireManagerConfig.BatCreateSshKey).WaitForExit();
 			return true;
 		}
-        public bool InstallWireGuardToServer(WireGuardUser server, List<WireGuardUser> users)
+        public bool InstallWireGuardToServer()
         {
             GetResponce($"mkdir {WireManagerConfig.WgDirName}");
-            CreateNewWgConfig(server, users?? new List<WireGuardUser>());
             Process.Start(WireManagerConfig.BatInstallWireguardToServer).WaitForExit();
+            CreateNewWgConfig(GetServer(), new List<WireGuardUser>());
+            GetResponce("systemctl enable wg - quick@wg0.service");
+            GetResponce("systemctl start wg-quick@wg0.service");
+            GetResponce("systemctl status wg-quick@wg0.service");
+            GetResponce("sysctl - p");
             return true;
         }
         #endregion
