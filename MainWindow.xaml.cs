@@ -265,14 +265,16 @@ namespace WireManager
 			this.Show();
 		}
 
-        private void Button_BackUpUsers(object sender, RoutedEventArgs e)
+        private void Button_CreateBackUp(object sender, RoutedEventArgs e)
         {
-			wgCmdApi.BackUpUsers(users);
+			wgCmdApi.BackUp(server, users);
         }
 
-        private void Button_UsersFromBackUp(object sender, RoutedEventArgs e)
+        private void Button_RestoreFromBackUp(object sender, RoutedEventArgs e)
         {
+            server = wgCmdApi.GetServerFromBackUp();
             users = wgCmdApi.GetUsersFromBackUp().ToList();
+			wgCmdApi.UploadServerOnServer(server);
             wgCmdApi.UploadUsersOnServer(users);
 			wgCmdApi.CreateNewWgConfig(server, users);
         }

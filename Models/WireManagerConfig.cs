@@ -62,6 +62,7 @@ namespace WireManager.Models
         public const string SshKeyPathOnServer = SshDirOnServer + "authorized_keys";
 
         public const string ConfigFileName = "WireManagerConfig.json";
+        public const string ServerBackUpFileName = "serverBackUp.json";
         public const string UsersBackUpFileName = "usersBackUp.json";
 
         public const string WgConfigFileName = "wg0.conf";
@@ -99,7 +100,7 @@ namespace WireManager.Models
 		public string SshAccessIsSetUp { get; set; } = falseArg;
 
 		[JsonPropertyName("interval")]
-		public string Interval { get; set; } = "10";
+		public string Interval { get; set; } = "100";
 
 		[JsonPropertyName("pathToSaves")]
 		public string PathToSaves { get; set; } = "usersData\\";

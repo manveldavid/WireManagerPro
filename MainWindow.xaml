@@ -8,14 +8,14 @@
         Title="WireGuardManager" WindowStyle="ToolWindow" Height="360" Width="250" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid x:Name="MainGrid">
         <Label x:Name="ServerIpLabel" Content="Server ip is " HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 5, 0, 0"/>
-        <Button Content="CreateUser" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 30, 0, 0" Click="Button_CreateUser" Width="100"/>
-        <Button Content="RenameUser" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 60, 0, 0" Click="Button_RenameUser" Width="100"/>
-        <Button Content="RemoveUsers" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 90, 0, 0" Click="Button_RemoveUsers" Width="100"/>
-        <Button Content="ConnectUsers" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 120, 0, 0" Click="Button_ConnectUsers" Width="100"/>
-        <Button Content="DisConnectUsers" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 150, 0, 0" Click="Button_DisConnectUsers" Width="100"/>
-        <Button Content="SaveUsersAccess" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 180, 0, 0" Click="Button_SaveUsersAccess" Width="100"/>
-        <Button Content="BackUpUsers" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 210, 0, 0" Click="Button_BackUpUsers" Width="100"/>
-        <Button Content="UsersFromBackUp" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 240, 0, 0" Click="Button_UsersFromBackUp" Width="100"/>
-        <Button Content="OpenAccessDir" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 270, 0, 0" Click="Button_OpenAccessDir" Width="100"/>
+        <Button Content="CreateUser" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 30, 0, 0" Click="Button_CreateUser" Width="120"/>
+        <Button Content="RenameUser" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 60, 0, 0" Click="Button_RenameUser" Width="120"/>
+        <Button Content="RemoveUsers" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 90, 0, 0" Click="Button_RemoveUsers" Width="120"/>
+        <Button Content="ConnectUsers" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 120, 0, 0" Click="Button_ConnectUsers" Width="120"/>
+        <Button Content="DisConnectUsers" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 150, 0, 0" Click="Button_DisConnectUsers" Width="120"/>
+        <Button Content="SaveUsersAccess" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 180, 0, 0" Click="Button_SaveUsersAccess" Width="120"/>
+        <Button Content="CreateBackUp" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 210, 0, 0" Click="Button_CreateBackUp" Width="120"/>
+        <Button Content="RestoreFromBackUp" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 240, 0, 0" Click="Button_RestoreFromBackUp" Width="120"/>
+        <Button Content="OpenAccessDir" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0, 270, 0, 0" Click="Button_OpenAccessDir" Width="120"/>
     </Grid>
 </Window>

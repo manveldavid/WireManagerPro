@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 using WireManager.Common;
 using WireManager.Models;
 
@@ -27,7 +28,7 @@ namespace WireManager.Services
 			var parceSuccess = Int32.TryParse(_config.Interval, out delay);
 			if (parceSuccess)
 				_interval = delay;
-			else _interval = 10;
+			else _interval = 100;
 		}
 
         #region Preparations
@@ -61,14 +62,14 @@ namespace WireManager.Services
         #endregion
 
         #region ServerPart
-        public void ConnectToServerWithSshAccess(int delayExtend = 500)
+        public void ConnectToServerWithSshAccess()
 		{
-			GetResponce($"ssh {_config.ServerUser}@{_config.ServerIp}", delay: delayExtend * _interval);
+			GetResponce($"ssh {_config.ServerUser}@{_config.ServerIp}", delay: _interval);
 			if (_config.NetworkInterface == "")
 			{
-				_config.NetworkInterface = GetNetworkInterface(delayExtend * _interval);
+				_config.NetworkInterface = GetNetworkInterface(_interval);
 			}
-			GoToWireguardDir(delayExtend);
+			GoToWireguardDir();
 		}
         public string GetNetworkInterface(int delay = 0)
         {
@@ -87,7 +88,7 @@ namespace WireManager.Services
         }
         public void RestartServer()
 		{
-			GetResponce("systemctl restart wg-quick@wg0");
+			GetResponce("systemctl restart wg-quick@wg0", delay:_interval);
 			GetResponce("systemctl status wg-quick@wg0", delay:_interval);
 		}
 		public WireGuardUser GetServer()
@@ -98,10 +99,45 @@ namespace WireManager.Services
 
 			return server;
 		}
+        public WireGuardUser GetServerFromBackUp(string path = "")
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                path = _config.PathToSaves;
+
+            WireGuardUser server;
+            var serverBackUp = Path.Combine(path, WireManagerConfig.ServerBackUpFileName);
+            if (File.Exists(serverBackUp))
+                using (var stream = File.OpenRead(serverBackUp))
+                {
+                    server = JsonSerializer.Deserialize<WireGuardUser>(stream);
+                }
+            else server = GetServer();
+
+            return server;
+
+        }
+        public void UploadServerOnServer(WireGuardUser server)
+        {
+            if (!string.IsNullOrEmpty(server.PubKey) && !string.IsNullOrEmpty(server.PrvKey) && !string.IsNullOrWhiteSpace(server.Name))
+            {
+                GetResponce($"rm {WireManagerConfig.ServerPubKeyName}", delay: _interval);
+                GetResponce($"rm {WireManagerConfig.ServerPrvKeyName}", delay: _interval);
+                GetResponce($"echo \"{server.PubKey}\" > {WireManagerConfig.ServerPubKeyName}", delay: _interval);
+                GetResponce($"echo \"{server.PrvKey}\" > {WireManagerConfig.ServerPrvKeyName}", delay: _interval);
+            }
+        }
+        public WireGuardUser CreateNewServer()
+        {
+            var server = new WireGuardUser { Name = "_server", Ip = _config.StandartServerIp };
+            GetResponce($"wg genkey | tee {WireManagerConfig.ServerPrvKeyName} | wg pubkey | tee {WireManagerConfig.ServerPubKeyName}", "=");
+            server.PrvKey = GetResponce("cat " + WireManagerConfig.ServerPrvKeyName, "=", delay: _interval);
+            server.PubKey = GetResponce("cat " + WireManagerConfig.ServerPubKeyName, "=", delay: _interval);
+            return server;
+        }
         public void SetServerKeys(WireGuardUser server)
         {
-            server.PubKey = GetResponce($"cat {WireManagerConfig.ServerPubKeyName}", "=");
             server.PrvKey = GetResponce($"cat {WireManagerConfig.ServerPrvKeyName}", "=");
+            server.PubKey = GetResponce($"cat {WireManagerConfig.ServerPubKeyName}", "=");
         }
         #endregion
 
@@ -201,39 +237,32 @@ namespace WireManager.Services
         {
             if (!string.IsNullOrEmpty(user.PubKey) && !string.IsNullOrEmpty(user.PrvKey) && !string.IsNullOrWhiteSpace(user.Name))
             {
-                GetResponce($"echo \"{user.PubKey}\" > {user.Name}_PubK");
-                GetResponce($"echo \"{user.PrvKey}\" > {user.Name}_PrvK");
+                GetResponce($"rm {user.Name}_PubK", delay: _interval);
+                GetResponce($"rm {user.Name}_PrvK", delay: _interval);
+                GetResponce($"echo \"{user.PubKey}\" > {user.Name}_PubK", delay: _interval);
+                GetResponce($"echo \"{user.PrvKey}\" > {user.Name}_PrvK", delay: _interval);
             }
-            else
-            {
-                GetResponce($"wg genkey | tee {WireManagerConfig.WgDirName}{user.Name}_PrvK | wg pubkey | tee {WireManagerConfig.WgDirName}{user.Name}_PubK", "=");
-                user.PubKey = GetResponce("cat " + user.Name + "_PubK", "=");
-                user.PrvKey = GetResponce("cat " + user.Name + "_PrvK", "=");
-            }
+            //else
+            //{
+            //    GetResponce($"wg genkey | tee {user.Name}_PrvK | wg pubkey | tee {user.Name}_PubK", "=", delay: _interval);
+            //    user.PrvKey = GetResponce("cat " + user.Name + "_PrvK", "=", delay: _interval);
+            //    user.PubKey = GetResponce("cat " + user.Name + "_PubK", "=", delay: _interval);
+            //}
         }
-        public void BackUpUsers(IEnumerable<WireGuardUser> users, string path = "")
-        {
-            if (string.IsNullOrWhiteSpace(path))
-                path = _config.PathToSaves;
 
-            var serializedString =
-                JsonSerializer.Serialize<IEnumerable<WireGuardUser>>(users, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
-
-            File.WriteAllText(Path.Combine(path, WireManagerConfig.UsersBackUpFileName), serializedString);
-        }
         public IEnumerable<WireGuardUser> GetUsersFromBackUp(string path = "")
         {
             if (string.IsNullOrWhiteSpace(path))
                 path = _config.PathToSaves;
 
             IEnumerable<WireGuardUser> users;
-            using (var stream = File.OpenRead(Path.Combine(path, WireManagerConfig.UsersBackUpFileName)))
-            {
-                users = JsonSerializer.Deserialize<IEnumerable<WireGuardUser>>(stream);
-            }
+            var userBackUp = Path.Combine(path, WireManagerConfig.UsersBackUpFileName);
+            if (File.Exists(userBackUp))
+                using (var stream = File.OpenRead(userBackUp))
+                {
+                    users = JsonSerializer.Deserialize<IEnumerable<WireGuardUser>>(stream);
+                }
+            else users = new List<WireGuardUser>();
 
             return users;
         }
@@ -319,7 +348,7 @@ namespace WireManager.Services
 				GetResponce($"echo \"{newWgConfig}\" > {WireManagerConfig.WgConfigFileName}");
 			}
 		}
-		public void BackUpWgConfig(string path = "", string wgConfigFileBody = "", int usersCount = 100)
+		public void BackUpWgConfig(string path = "", string wgConfigFileBody = "", int usersCount = 30)
 		{
 			if (string.IsNullOrWhiteSpace(path)) 
 				path = _config.PathToSaves;
@@ -364,7 +393,27 @@ namespace WireManager.Services
 			return GetResponce($"cat {WireManagerConfig.WgConfigFileName}", "Interface", delayExtend * _interval);
 		}
         #endregion
+        
+        public void BackUp(WireGuardUser server, IEnumerable<WireGuardUser> users, string path = "")
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                path = _config.PathToSaves;
 
+            var serializedString =
+                JsonSerializer.Serialize<IEnumerable<WireGuardUser>>(users, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+
+            File.WriteAllText(Path.Combine(path, WireManagerConfig.UsersBackUpFileName), serializedString);
+
+            serializedString = JsonSerializer.Serialize(server, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            File.WriteAllText(Path.Combine(path, WireManagerConfig.ServerBackUpFileName), serializedString);
+        }
         public void GoToWireguardDir(int delayExtend = 1) =>
             GetResponce($"cd {WireManagerConfig.WgDirName}", delay: delayExtend * _interval);
         public string GetResponce(string request, string responceContains = "", int delay = 0)
@@ -386,7 +435,7 @@ namespace WireManager.Services
 		public void ExitApp(WireGuardUser server, IEnumerable<WireGuardUser> users) 
 		{ 
 			CreateNewWgConfig(server, users);
-            BackUpUsers(users);
+            BackUp(server, users);
 			RestartServer();
 			Environment.Exit(0);
 		}
