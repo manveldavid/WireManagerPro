@@ -77,7 +77,7 @@ namespace WireManager
                 string username = "";
 
                 HelpWindow = new TextBoxWindow(
-					"Write the login on server here:\n(default value = root)");
+					"Write the login on the server here:\n(default value is 'root')");
                 HelpWindow.ShowDialog();
                 username = (HelpWindow as TextBoxWindow).Text;
 
@@ -91,7 +91,7 @@ namespace WireManager
                 bool choise;
 
                 HelpWindow = new BoolChoiseWindow(
-					"Is ssh-key already installed\n on the server?");
+					"Is ssh-key access already installed\n on the server?");
                 HelpWindow.ShowDialog();
                 choise = (HelpWindow as BoolChoiseWindow).Choise;
 
@@ -106,7 +106,7 @@ namespace WireManager
 			{
 				bool choise;
                 HelpWindow = new BoolChoiseWindow(
-					"Is WireGuard package already\n installed on the server?");
+					"Is WireGuard already\n installed on the server?");
                 HelpWindow.ShowDialog();
                 choise = (HelpWindow as BoolChoiseWindow).Choise;
 				if (choise)
