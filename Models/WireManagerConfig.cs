@@ -74,8 +74,8 @@ namespace WireManager.Models
         public const string BatConnectToServer = BatDir + "connectToServerAndInstallWireGuard.bat";
         public const string BatInstallWireguardToServer = BatDir + "connectToServerAndInstallWireGuard.bat";
 
-        public const string UsersAccessTxt = "Access.txt";
-        public const string UsersAccessPng = "Access.png";
+        public const string UsersAccessTxt = ".conf";
+        public const string UsersAccessPng = ".png";
         #endregion
 
 
@@ -99,6 +99,9 @@ namespace WireManager.Models
         [JsonPropertyName("sshAccessIsSetUp")]
 		public string SshAccessIsSetUp { get; set; } = falseArg;
 
+		[JsonPropertyName("welcomePart")]
+		public string WelcomePart { get; set; } = "";
+
 		[JsonPropertyName("interval")]
 		public string Interval { get; set; } = "100";
 
@@ -118,7 +121,7 @@ namespace WireManager.Models
 		public string StandartServerIp { get; set; } = "10.0.0.1/24";
 
 		[JsonPropertyName("standartUserIp")]
-		public string StandartUserIp { get; set; } = "10.0.0.2/24";
+		public string StandartUserIp { get; set; } = "10.0.0.2/32";
 
 		[JsonPropertyName("standartAllowedIpServer")]
 		public string StandartAllowedIpServer { get; set; } = "0.0.0.0/0";

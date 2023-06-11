@@ -64,14 +64,14 @@ namespace WireManager.Services
         #region ServerPart
         public void ConnectToServerWithSshAccess()
 		{
-			GetResponce($"ssh {_config.ServerUser}@{_config.ServerIp}", delay: _interval);
+			GetResponce($"ssh {_config.ServerUser}@{_config.ServerIp}", _config.WelcomePart, _interval);
 			if (_config.NetworkInterface == "")
 			{
-				_config.NetworkInterface = GetNetworkInterface(_interval);
+				_config.NetworkInterface = GetNetworkInterface(_interval * 10);
 			}
 			GoToWireguardDir();
 		}
-        public string GetNetworkInterface(int delay = 0)
+        public string GetNetworkInterface(int delay = 1000)
         {
             var ipConfigResponce = GetResponce("ip a", delay: delay);
             string networkInterface = "";
@@ -136,8 +136,8 @@ namespace WireManager.Services
         }
         public void SetServerKeys(WireGuardUser server)
         {
-            server.PrvKey = GetResponce($"cat {WireManagerConfig.ServerPrvKeyName}", "=");
-            server.PubKey = GetResponce($"cat {WireManagerConfig.ServerPubKeyName}", "=");
+            server.PrvKey = GetResponce($"cat {WireManagerConfig.ServerPrvKeyName}", "=", _interval*10);
+            server.PubKey = GetResponce($"cat {WireManagerConfig.ServerPubKeyName}", "=", _interval*10);
         }
         #endregion
 
@@ -158,8 +158,8 @@ namespace WireManager.Services
 		{
 			foreach (var user in users)
 			{
-				user.PubKey = GetResponce("cat " + user + "_PubK", "=");
-				user.PrvKey = GetResponce("cat " + user + "_PrvK", "=");
+				user.PubKey = GetResponce("cat " + user + "_PubK", "=", _interval);
+				user.PrvKey = GetResponce("cat " + user + "_PrvK", "=", _interval);
 			}
 		}
 		public void SetUserIps(IEnumerable<WireGuardUser> users)
@@ -295,8 +295,8 @@ namespace WireManager.Services
                 if (!Directory.Exists(savePath)) { Directory.CreateDirectory(savePath); }
                 savePath = Path.Combine(savePath, username);
                 if (!Directory.Exists(savePath)) { Directory.CreateDirectory(savePath); }
-                SaveAsPngQrCode(userAccess, Path.Combine(savePath, WireManagerConfig.UsersAccessPng));
-                SaveAsTxtFile(userAccess, Path.Combine(savePath, WireManagerConfig.UsersAccessTxt));
+                SaveAsPngQrCode(userAccess, Path.Combine(savePath, username + WireManagerConfig.UsersAccessPng));
+                SaveAsTxtFile(userAccess, Path.Combine(savePath, username + WireManagerConfig.UsersAccessTxt));
             }
         }
         public string GetTextUserAccess(WireGuardUser user, WireGuardUser server)
